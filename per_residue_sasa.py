@@ -1,10 +1,10 @@
 """
-amber_style_sasa.py
+per_residue_sasa.py
 
 Usage:
-    python amber_style_sasa.py fold_dimer_hts_model_0.pdb
+    python per_residue_sasa.py fold_dimer_hts_model_0.pdb
 or (trajectory):
-    python amber_style_sasa.py traj.nc topology.pdb
+    python per_residue_sasa.py traj.nc topology.pdb
 
 Output:
     - Shows a matplotlib figure of per-residue SASA (Å^2)
@@ -78,17 +78,17 @@ def make_amber_style_plot(residue_objs, sasa_avg, sasa_std=None, out_png="sasa_p
             last_chain = chain
 
     fig, ax = plt.subplots(figsize=(12,5))
-    # line (Amber often shows per-residue line)
+    # line
     ax.plot(x, sasa_avg, linewidth=1.5)
-    # optional ribbon of std deviation
+    # optnl. ribbon of std deviation
     if sasa_std is not None:
         ax.fill_between(x, sasa_avg - sasa_std, sasa_avg + sasa_std, alpha=0.2)
 
-    # vertical lines to denote chain breaks
+    # verticla lines to denote chain breaks
     for cb in chain_breaks:
         ax.axvline(cb, linestyle='--', linewidth=0.7)
 
-    # improve ticks: show a tick every ~10 residues for readability
+    # better ticks -> show a tick every ~10 residues for readability
     if N <= 40:
         xticks = x
     else:
@@ -129,11 +129,11 @@ def main():
     print(f"Loaded trajectory with {traj.n_frames} frames, {traj.n_atoms} atoms, {traj.n_residues} residues")
 
     res_sasa, residues = compute_residue_sasa(traj)
-    # average across frames (if single frame, it's just the frame)
+    # avg across frames (if single frame -> it's just the frame)
     sasa_mean = res_sasa.mean(axis=0)
     sasa_std = res_sasa.std(axis=0) if traj.n_frames > 1 else None
 
-    # Plot and save
+    # plot and save
     make_amber_style_plot(residues, sasa_mean, sasa_std)
     save_csv(residues, sasa_mean, sasa_std)
 
